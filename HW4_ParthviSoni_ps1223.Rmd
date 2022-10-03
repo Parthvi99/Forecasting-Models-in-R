@@ -1,0 +1,78 @@
+---
+title: "HW4_ParthviSoni_ps1223"
+author: "Parthvi Soni"
+date: "2022-10-02"
+output: html_document
+---
+
+
+```{r}
+
+library(fpp)
+library(fpp2)
+data(Seatbelts)
+library(TTR) # because we are using library for avgs
+
+attributes(Seatbelts) 
+plot(Seatbelts) # there is seasonality , no trend 
+Acf(Seatbelts) # 
+
+#take Mean of all available history
+df1 <- ts(Seatbelts[,'DriversKilled'], frequency = 12, start = c(1969, 1))
+df1
+mean_forecast <- meanf(df1,5) # give the forecast of next 5 months , blue hori line shows the mean of the forecast 
+
+plot(mean_forecast)
+
+# Naive
+naive_forecast <- naive(df1,5) 
+plot(naive_forecast)
+
+# various versions of naive model
+# Random Walk
+rwf_forecast <- rwf(df1,5)
+rwf_forecast <- rwf(df1,5, drift=TRUE)
+
+# Seasonal Naive
+snaive_forecast <- snaive(df1,5)
+
+# Moving Averages
+
+MA5_forecast <- ma(df1,order=5)
+MA9_forecast <- ma(df1,order=9)
+
+
+# plot all in a single chart
+plot(mean_forecast) #plotting ma5 and ma9 in a single graph
+lines(naive_forecast$mean,col="red")
+lines(rwf_forecast$mean,col="green")
+lines(snaive_forecast$mean,col="black")
+lines(MA5_forecast,col="Pink")
+lines(MA9_forecast,col="Blue")
+
+# what other attributes are there?
+attributes(naive_forecast)
+
+# Decomposition
+ets_forecast <- ets(df1)
+plot(ets_forecast)
+attributes(ets_forecast)
+ets_forecast$mse
+
+# HoltWinters
+HW_forecast <- HoltWinters(df1)
+plot(HW_forecast)
+SSE_Simple <- HoltWinters(df1,beta=FALSE,gamma=FALSE)
+attributes(SSE_Simple)
+plot(SSE_Simple)
+SSE_Simple$SSE
+head(SSE_Simple$fitted)
+
+#Forecast
+forecast_ets_1 <- forecast.ets(ets_forecast, h=5)
+plot(forecast_ets_1)
+forecast_ets_2 <- forecast(ets_forecast, h=5)
+plot(forecast_ets_2)
+
+```
+
